@@ -26,11 +26,8 @@ export function AppSidebar() {
     { name: 'Inicio', path: '/dashboard', icon: Home },
     { name: 'Historial', path: '/historial', icon: FileText },
     { name: 'Horarios', path: '/horarios', icon: Clock },
-    { name: 'Indicadores', path: '/indicadores', icon: Clipboard },
     { name: 'Reportes', path: '/reportes', icon: BarChart2 },
     { name: 'Pacientes', path: '/pacientes', icon: Users },
-    { name: 'Mensajes', path: '/mensajes', icon: MessageSquare },
-    { name: 'Configuración', path: '/configuracion', icon: Settings },
   ];
 
   return (

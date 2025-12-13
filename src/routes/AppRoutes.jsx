@@ -8,10 +8,8 @@ import LoginPage from '../pages/auth/LoginPage';
 import Dashboard from '../pages/Dashboard';
 import Historial from '../pages/Historial';
 import Horarios from '../pages/Horarios';
-import Indicadores from '../pages/Indicadores';
 import Reportes from '../pages/Reportes';
 import Pacientes from '../pages/Pacientes';
-import Configuracion from '../pages/Configuracion';
 import NotFound from '../pages/NotFound';
 import ProtectedRoute from '../components/auth/ProtectedRoute';
 
@@ -42,10 +40,8 @@ const AppRoutes = () => {
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="historial" element={<Historial />} />
           <Route path="horarios" element={<Horarios />} />
-          <Route path="indicadores" element={<Indicadores />} />
           <Route path="reportes" element={<Reportes />} />
           <Route path="pacientes" element={<Pacientes />} />
-          <Route path="configuracion" element={<Configuracion />} />
         </Route>
       </Route>
 
