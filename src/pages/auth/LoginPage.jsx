@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
-import { Mail, Lock, Eye, EyeOff, User, LogIn } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, User, LogIn, Smile } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
@@ -59,29 +59,20 @@ const LoginPage = () => {
         <ThemeToggle />
       </div>
 
-      <div className={`w-full max-w-md p-8 rounded-2xl shadow-2xl transition-all duration-300 ${theme === 'dark' ? 'bg-gray-800/90' : 'bg-white/95'}`}>
+      <div className={`w-full max-w-md p-8 rounded-2xl border transition-all duration-200 backdrop-blur-sm ${
+          theme === 'dark'
+            ? 'bg-gray-800/80 border-gray-700/60 shadow-[0_12px_30px_-12px_rgba(0,0,0,0.5)] hover:shadow-[0_16px_40px_-16px_rgba(0,0,0,0.55)]'
+            : 'bg-white/95 border-slate-200/50 shadow-[0_12px_30px_-12px_rgba(15,23,42,0.25)] hover:shadow-[0_16px_40px_-16px_rgba(15,23,42,0.28)]'
+        }`}>
         {/* Logo y Título */}
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
-            <div className={`p-3 rounded-full ${theme === 'dark' ? 'bg-blue-900/20' : 'bg-blue-100'} mb-4`}>
-              <svg
-                className="w-12 h-12 text-blue-500"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
-                />
-              </svg>
+            <div className={`p-3 rounded-full ${theme === 'dark' ? 'bg-[#0f1c49]/20' : 'bg-[#0f1c49]/10'} mb-4`}>
+              <Smile className="w-12 h-12 text-[#0f1c49]" />
             </div>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">HEALTHDESK</h1>
-          <p className="mt-2 text-gray-600 dark:text-gray-300">Sistema de Gestión de Citas Médicas</p>
+          <h1 className="text-3xl font-semibold tracking-tight text-slate-900 dark:text-white">HEALTHDESK</h1>
+          <p className="mt-2 text-sm text-slate-600 dark:text-gray-300">Sistema de Gestión de Citas Médicas</p>
         </div>
 
         {/* Formulario */}
@@ -98,7 +89,11 @@ const LoginPage = () => {
                 required
                 label="Correo electrónico"
                 startIcon={Mail}
-                className={`w-full px-4 py-3 rounded-lg border ${theme === 'dark' ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300'} focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
+                className={`w-full h-11 px-4 rounded-xl border ring-1 ${
+                  theme === 'dark'
+                    ? 'bg-gray-800/70 border-transparent ring-gray-700 focus:ring-[#0f1c49] text-white'
+                    : 'bg-white/95 border-transparent ring-slate-200/60 focus:ring-[#0f1c49]'
+                } placeholder:text-slate-400 focus:outline-none transition-shadow`}
               />
             </div>
 
@@ -116,7 +111,11 @@ const LoginPage = () => {
                   startIcon={Lock}
                   endIcon={showPassword ? EyeOff : Eye}
                   onEndIconClick={() => setShowPassword(!showPassword)}
-                  className={`w-full px-4 py-3 rounded-lg border ${theme === 'dark' ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300'} focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
+                  className={`w-full h-11 px-4 rounded-xl border ring-1 ${
+                    theme === 'dark'
+                      ? 'bg-gray-800/70 border-transparent ring-gray-700 focus:ring-[#0f1c49] text-white'
+                      : 'bg-white/95 border-transparent ring-slate-200/60 focus:ring-[#0f1c49]'
+                  } placeholder:text-slate-400 focus:outline-none transition-shadow`}
                 />
               </div>
             </div>
@@ -129,7 +128,7 @@ const LoginPage = () => {
                   type="checkbox"
                   checked={formData.rememberMe}
                   onChange={handleChange}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  className="h-4 w-4 text-[#0f1c49] focus:ring-[#0f1c49] border-slate-300 rounded"
                 />
                 <label htmlFor="rememberMe" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
                   Recordarme
@@ -137,7 +136,7 @@ const LoginPage = () => {
               </div>
 
               <div className="text-sm">
-                <a href="#" className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300">
+                <a href="#" className="font-medium text-[#0f1c49] hover:brightness-110 dark:text-[#0f1c49] underline-offset-4 hover:underline">
                   ¿Olvidaste tu contraseña?
                 </a>
               </div>
@@ -150,7 +149,7 @@ const LoginPage = () => {
               variant="primary"
               size="lg"
               disabled={isLoading}
-              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full flex justify-center h-11 px-4 rounded-xl text-sm font-medium text-white bg-gradient-to-b from-[#0f1c49] to-[#0f1c49] shadow-[0_10px_24px_-10px_rgba(15,28,73,0.55)] hover:shadow-[0_16px_36px_-14px_rgba(15,28,73,0.55)] hover:brightness-105 hover:-translate-y-0.5 transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0f1c49] disabled:opacity-50 disabled:cursor-not-allowed"
               icon={LogIn}
               iconPosition="right"
             >
@@ -162,10 +161,10 @@ const LoginPage = () => {
         <div className="mt-6">
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
-              <div className={`w-full border-t ${theme === 'dark' ? 'border-gray-700' : 'border-gray-300'}`}></div>
+              <div className={`w-full border-t ${theme === 'dark' ? 'border-gray-700/70' : 'border-slate-200/60'}`}></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className={`px-2 ${theme === 'dark' ? 'bg-gray-800 text-gray-300' : 'bg-white text-gray-500'}`}>
+              <span className={`px-2 ${theme === 'dark' ? 'bg-gray-800 text-gray-300' : 'bg-white text-slate-600'}`}>
                 ¿No tienes una cuenta?
               </span>
             </div>
@@ -174,7 +173,7 @@ const LoginPage = () => {
           <div className="mt-6">
             <Link
               to="/registro"
-              className="w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-blue-600 bg-white hover:bg-gray-50 dark:bg-gray-700 dark:text-blue-400 dark:hover:bg-gray-600"
+              className="w-full flex items-center justify-center px-4 py-2 rounded-md text-sm font-medium text-slate-700 bg-white border border-slate-200/60 hover:bg-slate-50 dark:bg-gray-700 dark:text-slate-200 dark:border-gray-600 dark:hover:bg-gray-600"
             >
               Regístrate aquí
             </Link>

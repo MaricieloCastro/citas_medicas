@@ -4,6 +4,7 @@ import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import { useState, useMemo, useEffect } from 'react';
+import { historialCitas } from '../data/healthdeskSimulados';
 
 const mockPacientes = [
   { id: 1, dni: '70123456', nombre: 'Juan', apellidos: 'Pérez Gómez', telefono: '+51 987654321', fechaNacimiento: '1990-01-15', estadoCivil: 'soltero', sexo: 'masculino' },
@@ -170,18 +171,82 @@ const Pacientes = () => {
           // fusionar por DNI para agregar nuevos mocks sin duplicar
           const existingByDni = new Set(parsed.map(p => p.dni));
           const nuevos = mockPacientes.filter(m => !existingByDni.has(m.dni));
-          const merged = [...parsed, ...nuevos];
+          let merged = [...parsed, ...nuevos];
+          // sincronizar con historialCitas por nombre completo evitando duplicados
+          const byName = new Set(merged.map(p => `${(p.nombre||'').trim()} ${(p.apellidos||'').trim()}`.trim().toLowerCase()));
+          const existingDnis = new Set(merged.map(p => p.dni));
+          const genDni = () => {
+            let dni;
+            do { dni = String(Math.floor(10000000 + Math.random()*89999999)); } while (existingDnis.has(dni));
+            existingDnis.add(dni);
+            return dni;
+          };
+          const genPhone = () => `+51 9${Math.floor(10000000 + Math.random()*89999999).toString().slice(0,8)}`;
+          const toPatient = (fullName) => {
+            const parts = fullName.split(' ').filter(Boolean);
+            const nombre = parts[0] || fullName;
+            const apellidos = parts.slice(1).join(' ') || '-';
+            return { id: Date.now() + Math.floor(Math.random()*100000), dni: genDni(), nombre, apellidos, telefono: genPhone(), fechaNacimiento: '', estadoCivil: 'soltero', sexo: 'otro' };
+          };
+          const nuevosDeHistorial = Array.from(new Set(historialCitas.map(c => c.Paciente)))
+            .filter(n => !byName.has(n.toLowerCase()))
+            .map(toPatient);
+          if (nuevosDeHistorial.length > 0) {
+            merged = [...merged, ...nuevosDeHistorial];
+          }
           setPacientes(merged);
-          if (nuevos.length > 0) {
+          if (nuevos.length > 0 || nuevosDeHistorial.length > 0) {
             localStorage.setItem('pacientes', JSON.stringify(merged));
           }
         } else {
-          setPacientes(mockPacientes);
-          localStorage.setItem('pacientes', JSON.stringify(mockPacientes));
+          // base desde mocks + historial
+          const base = [...mockPacientes];
+          const byName = new Set(base.map(p => `${p.nombre} ${p.apellidos}`.toLowerCase()));
+          const existingDnis = new Set(base.map(p => p.dni));
+          const genDni = () => {
+            let dni;
+            do { dni = String(Math.floor(10000000 + Math.random()*89999999)); } while (existingDnis.has(dni));
+            existingDnis.add(dni);
+            return dni;
+          };
+          const genPhone = () => `+51 9${Math.floor(10000000 + Math.random()*89999999).toString().slice(0,8)}`;
+          const toPatient = (fullName) => {
+            const parts = fullName.split(' ').filter(Boolean);
+            const nombre = parts[0] || fullName;
+            const apellidos = parts.slice(1).join(' ') || '-';
+            return { id: Date.now() + Math.floor(Math.random()*100000), dni: genDni(), nombre, apellidos, telefono: genPhone(), fechaNacimiento: '', estadoCivil: 'soltero', sexo: 'otro' };
+          };
+          const addFromHist = Array.from(new Set(historialCitas.map(c => c.Paciente)))
+            .filter(n => !byName.has(n.toLowerCase()))
+            .map(toPatient);
+          const merged = [...base, ...addFromHist];
+          setPacientes(merged);
+          localStorage.setItem('pacientes', JSON.stringify(merged));
         }
       } else {
-        setPacientes(mockPacientes);
-        localStorage.setItem('pacientes', JSON.stringify(mockPacientes));
+        // base desde mocks + historial
+        const base = [...mockPacientes];
+        const byName = new Set(base.map(p => `${p.nombre} ${p.apellidos}`.toLowerCase()));
+        const existingDnis = new Set(base.map(p => p.dni));
+        const genDni = () => {
+          let dni;
+          do { dni = String(Math.floor(10000000 + Math.random()*89999999)); } while (existingDnis.has(dni));
+          existingDnis.add(dni);
+          return dni;
+        };
+        const genPhone = () => `+51 9${Math.floor(10000000 + Math.random()*89999999).toString().slice(0,8)}`;
+        const toPatient = (fullName) => {
+          const parts = fullName.split(' ').filter(Boolean);
+          const nombre = parts[0] || fullName;
+          const apellidos = parts.slice(1).join(' ') || '-';
+          return { id: Date.now() + Math.floor(Math.random()*100000), dni: genDni(), nombre, apellidos, telefono: genPhone(), fechaNacimiento: '', estadoCivil: 'soltero', sexo: 'otro' };
+        };
+        const addFromHist = Array.from(new Set(historialCitas.map(c => c.Paciente)))
+          .filter(n => !byName.has(n.toLowerCase()))
+          .map(toPatient);
+        const merged = [...base, ...addFromHist];
+        setPacientes(merged);
+        localStorage.setItem('pacientes', JSON.stringify(merged));
       }
     } catch (e) {
       // fallo silencioso

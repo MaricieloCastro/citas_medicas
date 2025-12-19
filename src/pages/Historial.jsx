@@ -1,8 +1,26 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import Card from '../components/ui/Card';
 import { Search, Filter, Calendar as CalendarIcon } from 'lucide-react';
+import { historialCitas } from '../data/healthdeskSimulados';
 
 const Historial = () => {
+  const [query, setQuery] = useState('');
+  const [estado, setEstado] = useState('all');
+
+  const filas = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return historialCitas.filter((c) => {
+      const matchEstado = estado === 'all' || c.Estado === estado;
+      const matchTexto =
+        q === '' ||
+        c.Paciente.toLowerCase().includes(q) ||
+        c.Motivo.toLowerCase().includes(q) ||
+        c.Fecha.toLowerCase().includes(q) ||
+        c.Hora.toLowerCase().includes(q);
+      return matchEstado && matchTexto;
+    });
+  }, [query, estado]);
+
   return (
     <div className="space-y-6">
       <div>
@@ -22,7 +40,9 @@ const Historial = () => {
               <input
                 type="text"
                 className="block w-full py-2 pl-10 pr-3 text-sm bg-white border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Buscar por nombre, teléfono o motivo..."
+                placeholder="Buscar por paciente, motivo, fecha u hora..."
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
               />
             </div>
             <div className="flex space-x-3">
@@ -31,12 +51,13 @@ const Historial = () => {
                   id="status"
                   name="status"
                   className="block w-full py-2 pl-3 pr-10 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                  defaultValue="all"
+                  value={estado}
+                  onChange={(e) => setEstado(e.target.value)}
                 >
                   <option value="all">Todos los estados</option>
-                  <option value="confirmed">Confirmadas</option>
-                  <option value="pending">Pendientes</option>
-                  <option value="cancelled">Canceladas</option>
+                  <option value="Finalizada">Finalizadas</option>
+                  <option value="Cancelada">Canceladas</option>
+                  <option value="No asistió">No asistió</option>
                 </select>
               </div>
               <button
@@ -84,11 +105,38 @@ const Historial = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                <tr className="text-center text-gray-500">
-                  <td colSpan="5" className="px-6 py-8">
-                    No hay citas registradas.
-                  </td>
-                </tr>
+                {filas.length === 0 && (
+                  <tr className="text-center text-gray-500">
+                    <td colSpan="5" className="px-6 py-8">No se encontraron resultados.</td>
+                  </tr>
+                )}
+                {filas.map((cita, idx) => (
+                  <tr key={idx} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {cita.Paciente}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                      {cita.Fecha} · {cita.Hora}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                      {cita.Motivo}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm">
+                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                        cita.Estado === 'Finalizada'
+                          ? 'bg-green-100 text-green-800'
+                          : cita.Estado === 'Cancelada'
+                          ? 'bg-red-100 text-red-800'
+                          : 'bg-yellow-100 text-yellow-800'
+                      }`}>
+                        {cita.Estado}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-right text-sm font-medium">
+                      <button className="text-blue-600 hover:text-blue-900">Ver</button>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>

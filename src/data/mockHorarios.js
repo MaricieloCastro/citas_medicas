@@ -3,32 +3,32 @@ export const horariosMock = [
   {
     dia: "lunes",
     activo: true,
-    horaInicio: "09:00",
-    horaFin: "18:00"
+    horaInicio: "10:00",
+    horaFin: "19:00"
   },
   {
     dia: "martes",
     activo: true,
-    horaInicio: "09:00",
-    horaFin: "18:00"
+    horaInicio: "10:00",
+    horaFin: "19:00"
   },
   {
     dia: "miércoles",
     activo: true,
-    horaInicio: "09:00",
-    horaFin: "18:00"
+    horaInicio: "10:00",
+    horaFin: "19:00"
   },
   {
     dia: "jueves",
     activo: true,
-    horaInicio: "09:00",
-    horaFin: "18:00"
+    horaInicio: "10:00",
+    horaFin: "19:00"
   },
   {
     dia: "viernes",
     activo: true,
-    horaInicio: "09:00",
-    horaFin: "17:00"
+    horaInicio: "10:00",
+    horaFin: "19:00"
   },
   {
     dia: "sábado",
