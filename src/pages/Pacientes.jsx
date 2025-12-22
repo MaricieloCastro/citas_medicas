@@ -7,6 +7,7 @@ import {
   Pencil,
   Trash2,
   Stethoscope,
+  AlertTriangle,
 } from 'lucide-react';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
@@ -421,6 +422,8 @@ const Pacientes = () => {
   const { theme } = useTheme();
   const [pacientes, setPacientes] = useState([]);
   const [busqueda, setBusqueda] = useState('');
+  const [showConfirmEliminar, setShowConfirmEliminar] = useState(false);
+  const [pacienteEliminar, setPacienteEliminar] = useState(null);
   const [mostrandoFormulario, setMostrandoFormulario] = useState(false);
   const [editandoId, setEditandoId] = useState(null);
   const [formData, setFormData] = useState({
@@ -812,7 +815,7 @@ const Pacientes = () => {
           type='search'
           placeholder='Buscar paciente por nombre, teléfono o DNI...'
           startIcon={Search}
-          className='w-full'
+          className='w-full pl-10'
           value={busqueda}
           onChange={(e) => setBusqueda(e.target.value)}
         />
@@ -1041,7 +1044,7 @@ const Pacientes = () => {
                   </th>
                   <th
                     scope='col'
-                    className='px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider'
+                    className='px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider'
                   >
                     Acciones
                   </th>
@@ -1065,8 +1068,8 @@ const Pacientes = () => {
                     <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100'>
                       {p.telefono}
                     </td>
-                    <td className='px-6 py-4 whitespace-nowrap text-right text-sm'>
-                      <div className='flex gap-2 justify-end'>
+                    <td className='px-6 py-4 whitespace-nowrap text-sm text-center'>
+                      <div className='flex gap-2 justify-center'>
                         <Button
                           variant='ghost'
                           size='sm'
@@ -1091,7 +1094,7 @@ const Pacientes = () => {
                           size='sm'
                           className='inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 bg-rose-100 text-rose-700 hover:bg-rose-200 ring-1 ring-rose-200 dark:bg-rose-900/30 dark:text-rose-300 dark:hover:bg-rose-900/50 dark:ring-rose-800/60'
                           icon={Trash2}
-                          onClick={() => eliminarPaciente(p.id)}
+                          onClick={() => { setPacienteEliminar(p); setShowConfirmEliminar(true); }}
                         >
                           Eliminar
                         </Button>
@@ -1137,6 +1140,55 @@ const Pacientes = () => {
           </div>
         )}
       </Card>
+
+      {showConfirmEliminar && (
+        <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4'>
+          <div className='w-full max-w-md rounded-2xl border border-rose-200/60 bg-white dark:bg-gray-900 shadow-xl overflow-hidden'>
+            <div className='px-6 py-5 flex items-start gap-3'>
+              <div className='shrink-0 p-2 rounded-full bg-rose-100 dark:bg-rose-900/30'>
+                <AlertTriangle className='h-6 w-6 text-rose-600 dark:text-rose-400' />
+              </div>
+              <div>
+                <h3 className='text-lg font-semibold text-gray-900 dark:text-white'>
+                  ¿Estás seguro de eliminar este paciente?
+                </h3>
+                <p className='mt-1 text-sm text-gray-600 dark:text-gray-300'>
+                  Esta acción es permanente y no se puede deshacer.
+                </p>
+                {pacienteEliminar && (
+                  <p className='mt-2 text-sm'>
+                    <span className='text-gray-500 dark:text-gray-400'>Paciente:</span>{' '}
+                    <span className='font-medium text-gray-900 dark:text-white'>
+                      {pacienteEliminar.nombre} {pacienteEliminar.apellidos}
+                    </span>
+                  </p>
+                )}
+              </div>
+            </div>
+            <div className='px-6 pb-6 pt-2 flex justify-end gap-3'>
+              <Button
+                type='button'
+                variant='ghost'
+                onClick={() => { setShowConfirmEliminar(false); setPacienteEliminar(null); }}
+              >
+                Cancelar
+              </Button>
+              <Button
+                type='button'
+                className='inline-flex items-center gap-2 bg-rose-600 hover:bg-rose-700 text-white'
+                onClick={() => {
+                  if (pacienteEliminar) eliminarPaciente(pacienteEliminar.id);
+                  setShowConfirmEliminar(false);
+                  setPacienteEliminar(null);
+                }}
+              >
+                <Trash2 className='h-4 w-4' />
+                Eliminar definitivamente
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {mostrandoHistorial && (
         <div className='fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4'>

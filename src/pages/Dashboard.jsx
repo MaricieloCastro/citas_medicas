@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { 
   Calendar, 
   Clock, 
@@ -20,74 +20,69 @@ import Card from '../components/ui/Card';
 import Badge from '../components/ui/Badge';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
+import { historialCitas } from '../data/healthdeskSimulados';
 
-// Datos de ejemplo para las citas
-const mockAppointments = [
-  {
-    id: 1,
-    paciente: 'Juan Pérez',
-    telefono: '+51 987654321',
-    hora: '09:00',
-    motivo: 'Consulta general',
-    estado: 'confirmada',
-    fecha: new Date().toISOString().split('T')[0],
-    edad: 35,
-    genero: 'Masculino'
-  },
-  {
-    id: 2,
-    paciente: 'María Gómez',
-    telefono: '+51 987654322',
-    hora: '10:30',
-    motivo: 'Control de presión',
-    estado: 'pendiente',
-    fecha: new Date().toISOString().split('T')[0],
-    edad: 42,
-    genero: 'Femenino'
-  },
-  {
-    id: 3,
-    paciente: 'Carlos López',
-    telefono: '+51 987654323',
-    hora: '11:15',
-    motivo: 'Revisión de exámenes',
-    estado: 'confirmada',
-    fecha: new Date().toISOString().split('T')[0],
-    edad: 28,
-    genero: 'Masculino'
-  },
-  {
-    id: 4,
-    paciente: 'Ana Torres',
-    telefono: '+51 987654324',
-    hora: '15:30',
-    motivo: 'Control postoperatorio',
-    estado: 'confirmada',
-    fecha: new Date().toISOString().split('T')[0],
-    edad: 31,
-    genero: 'Femenino'
-  },
-  {
-    id: 5,
-    paciente: 'Roberto Sánchez',
-    telefono: '+51 987654325',
-    hora: '16:45',
-    motivo: 'Dolor de cabeza',
-    estado: 'pendiente',
-    fecha: new Date().toISOString().split('T')[0],
-    edad: 45,
-    genero: 'Masculino'
-  }
-];
+// Construir citas desde historialCitas y pacientes guardados (acts as backend)
+const mapEstado = (e) => e === 'Finalizada' ? 'confirmada' : (e === 'Cancelada' ? 'cancelada' : 'pendiente');
+const getPacientesByName = () => {
+  try {
+    const saved = localStorage.getItem('pacientes');
+    if (!saved) return new Map();
+    const arr = JSON.parse(saved);
+    if (!Array.isArray(arr)) return new Map();
+    const map = new Map();
+    arr.forEach(p => map.set(`${p.nombre} ${p.apellidos}`.trim(), p));
+    return map;
+  } catch { return new Map(); }
+};
 
 // Secciones de actividad y estado del sistema eliminadas
 
 const Dashboard = () => {
   const { theme } = useTheme();
-  const [citas, setCitas] = useState(mockAppointments);
+  const [citas, setCitas] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [pestaniaActiva, setPestaniaActiva] = useState('hoy');
   const [busqueda, setBusqueda] = useState('');
+
+  // Preparar citas desde historial + pacientes (sin duplicados)
+  const allCitas = useMemo(() => {
+    const pacMap = getPacientesByName();
+    const calcEdad = (fn) => {
+      if (!fn) return null;
+      const b = new Date(fn + 'T00:00:00');
+      if (isNaN(b)) return null;
+      const today = new Date();
+      let age = today.getFullYear() - b.getFullYear();
+      const m = today.getMonth() - b.getMonth();
+      if (m < 0 || (m === 0 && today.getDate() < b.getDate())) age--;
+      return age;
+    };
+    const cap = (s) => s ? s.charAt(0).toUpperCase() + s.slice(1) : '-';
+    return historialCitas.map((c, idx) => {
+      const p = pacMap.get(c.Paciente) || {};
+      return {
+        id: idx + 1,
+        paciente: c.Paciente,
+        telefono: p.telefono || '',
+        hora: c.Hora,
+        motivo: c.Motivo,
+        estado: mapEstado(c.Estado),
+        fecha: c.Fecha,
+        edad: calcEdad(p.fechaNacimiento),
+        genero: p.sexo ? cap(p.sexo) : '-'
+      };
+    });
+  }, []);
+
+  useEffect(() => {
+    // Simular carga y asignar citas desde dataset
+    const timer = setTimeout(() => {
+      setCitas(allCitas);
+      setCargando(false);
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [allCitas]);
 
   // Filtrar citas según la pestaña activa
   const citasFiltradas = citas.filter(cita => {
@@ -311,18 +306,18 @@ const Dashboard = () => {
                           </td>
                           <td className="px-6 py-4">
                             <div className="text-sm text-gray-900">{cita.motivo}</div>
-                            <div className="text-sm text-gray-500">
-                              {cita.edad} años • {cita.genero}
-                            </div>
+                            {(cita.edad != null || (cita.genero && cita.genero !== '-')) && (
+                              <div className="text-sm text-gray-500">
+                                {cita.edad != null ? `${cita.edad} años` : ''}
+                                {cita.edad != null && cita.genero && cita.genero !== '-' ? ' • ' : ''}
+                                {(cita.genero && cita.genero !== '-') ? cita.genero : ''}
+                              </div>
+                            )}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             {obtenerBadgeEstado(cita.estado)}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <Button variant="ghost" size="sm" className="text-blue-600 hover:text-blue-900">
-                              Ver <ChevronRight className="ml-1 h-4 w-4" />
-                            </Button>
-                          </td>
+                          
                         </tr>
                       ))}
                     </tbody>

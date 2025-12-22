@@ -1,12 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
-import { BarChart2, TrendingUp, Users, Calendar, Download } from 'lucide-react';
+import { BarChart2, TrendingUp, Users, Calendar } from 'lucide-react';
 import Card from '../components/ui/Card';
 import { historialCitas, reportesSimulados } from '../data/healthdeskSimulados';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, BarChart, Bar } from 'recharts';
 import { motion } from 'framer-motion';
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
 
 const Reportes = () => {
   const { theme } = useTheme();
@@ -97,49 +95,7 @@ const Reportes = () => {
     return <span>{display}</span>;
   };
 
-  const exportToPdf = async () => {
-    if (!wrapRef.current) return;
-    const node = wrapRef.current;
-    const canvas = await html2canvas(node, { scale: 2, backgroundColor: theme === 'dark' ? '#0b1220' : '#ffffff' });
-    const imgData = canvas.toDataURL('image/png');
-    const pdf = new jsPDF('p', 'mm', 'a4');
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
-    const imgProps = { width: pageWidth - 20 };
-    const imgHeight = (canvas.height * imgProps.width) / canvas.width;
-
-    pdf.setFont('helvetica', 'bold');
-    pdf.setFontSize(16);
-    pdf.text('Reporte de Actividad — HealthDesk', 10, 15);
-    pdf.setFont('helvetica', 'normal');
-    pdf.setFontSize(11);
-    pdf.text('Profesional: Dr. Carlos Ramírez', 10, 22);
-
-    let y = 30;
-    if (imgHeight < pageHeight - y - 10) {
-      pdf.addImage(imgData, 'PNG', 10, y, imgProps.width, imgHeight);
-    } else {
-      // dividir en páginas si es muy alto
-      let sY = 0;
-      const pxPageHeight = (canvas.height * (pageHeight - y - 10)) / (imgProps.width);
-      while (sY < canvas.height) {
-        const pageCanvas = document.createElement('canvas');
-        pageCanvas.width = canvas.width;
-        pageCanvas.height = Math.min(pxPageHeight, canvas.height - sY);
-        const ctx = pageCanvas.getContext('2d');
-        ctx.drawImage(canvas, 0, sY, canvas.width, pageCanvas.height, 0, 0, canvas.width, pageCanvas.height);
-        const pageImg = pageCanvas.toDataURL('image/png');
-        pdf.addImage(pageImg, 'PNG', 10, y, imgProps.width, (pageCanvas.height * imgProps.width) / canvas.width);
-        sY += pageCanvas.height;
-        if (sY < canvas.height) {
-          pdf.addPage();
-          y = 10;
-        }
-      }
-    }
-
-    pdf.save('reporte-healthdesk.pdf');
-  };
+  // exportación a PDF removida a solicitud del usuario
 
   return (
     <div className="space-y-6">
@@ -163,9 +119,7 @@ const Reportes = () => {
               </button>
             ))}
           </div>
-          <button onClick={exportToPdf} className="inline-flex items-center px-3 py-2 text-sm font-medium text-white rounded-md shadow bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700">
-          <Download className="w-4 h-4 mr-2" /> Exportar PDF
-          </button>
+          {/* Botón de Exportar PDF removido */}
         </div>
       </div>
 

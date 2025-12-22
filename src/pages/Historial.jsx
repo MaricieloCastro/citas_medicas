@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import Card from '../components/ui/Card';
 import { Search, Filter, Calendar as CalendarIcon } from 'lucide-react';
 import { historialCitas } from '../data/healthdeskSimulados';
@@ -6,6 +6,8 @@ import { historialCitas } from '../data/healthdeskSimulados';
 const Historial = () => {
   const [query, setQuery] = useState('');
   const [estado, setEstado] = useState('all');
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   const filas = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -20,6 +22,17 @@ const Historial = () => {
       return matchEstado && matchTexto;
     });
   }, [query, estado]);
+
+  // Resetear a página 1 cuando cambian filtros/búsqueda/tamaño
+  useEffect(() => {
+    setPage(1);
+  }, [query, estado, pageSize]);
+
+  const totalPages = Math.max(1, Math.ceil(filas.length / pageSize));
+  const safePage = Math.min(Math.max(page, 1), totalPages);
+  const inicio = (safePage - 1) * pageSize;
+  const fin = inicio + pageSize;
+  const filasPagina = filas.slice(inicio, fin);
 
   return (
     <div className="space-y-6">
@@ -71,6 +84,45 @@ const Historial = () => {
           </div>
         </Card.Header>
         <Card.Content>
+          {/* Controles de paginación superiores */}
+          <div className="flex items-center justify-between mb-3 gap-3">
+            <div className="flex items-center gap-2 text-sm">
+              <span className="text-gray-600">Mostrar</span>
+              <select
+                className="px-2 py-1 border rounded-md bg-white border-gray-300 text-gray-900"
+                value={pageSize}
+                onChange={(e) => setPageSize(Number(e.target.value))}
+              >
+                <option value={5}>5</option>
+                <option value={10}>10</option>
+                <option value={15}>15</option>
+                <option value={20}>20</option>
+              </select>
+              <span className="text-gray-600">por página</span>
+            </div>
+            <div className="flex items-center gap-2 text-sm">
+              <span className="text-gray-600">Página {safePage} de {totalPages}</span>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  className="px-3 py-1.5 rounded-md border text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={safePage <= 1}
+                >
+                  Anterior
+                </button>
+                <button
+                  type="button"
+                  className="px-3 py-1.5 rounded-md border text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={safePage >= totalPages}
+                >
+                  Siguiente
+                </button>
+              </div>
+            </div>
+          </div>
+
           <div className="overflow-hidden border border-gray-200 rounded-lg">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
@@ -99,18 +151,15 @@ const Historial = () => {
                   >
                     Estado
                   </th>
-                  <th scope="col" className="relative px-6 py-3">
-                    <span className="sr-only">Acciones</span>
-                  </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {filas.length === 0 && (
                   <tr className="text-center text-gray-500">
-                    <td colSpan="5" className="px-6 py-8">No se encontraron resultados.</td>
+                    <td colSpan="4" className="px-6 py-8">No se encontraron resultados.</td>
                   </tr>
                 )}
-                {filas.map((cita, idx) => (
+                {filasPagina.map((cita, idx) => (
                   <tr key={idx} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {cita.Paciente}
@@ -132,13 +181,38 @@ const Historial = () => {
                         {cita.Estado}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-right text-sm font-medium">
-                      <button className="text-blue-600 hover:text-blue-900">Ver</button>
-                    </td>
                   </tr>
                 ))}
               </tbody>
             </table>
+          </div>
+
+          {/* Controles de paginación inferiores */}
+          <div className="flex items-center justify-between mt-4 gap-3">
+            <div className="text-sm text-gray-600">
+              Mostrando {filasPagina.length} de {filas.length} citas
+            </div>
+            <div className="flex items-center gap-2 text-sm">
+              <span className="text-gray-600">Página {safePage} de {totalPages}</span>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  className="px-3 py-1.5 rounded-md border text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={safePage <= 1}
+                >
+                  Anterior
+                </button>
+                <button
+                  type="button"
+                  className="px-3 py-1.5 rounded-md border text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={safePage >= totalPages}
+                >
+                  Siguiente
+                </button>
+              </div>
+            </div>
           </div>
         </Card.Content>
       </Card>
